@@ -7,6 +7,6 @@ cd mm
 cd ../
 
 #launch QMMM
-cd ../../../controller/; python md.py &
+cd ../../MDI_examples/; python md.py &
 
 wait
