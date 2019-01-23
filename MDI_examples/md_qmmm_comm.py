@@ -5,7 +5,7 @@ sys.path.insert(0, '../lib/mdi_build/molssi_driver_interface')
 
 import mdi_python as mdi
 
-niterations = 100000
+niterations = 1000
 
 # initialize the socket
 sockfd = mdi.MDI_Listen("TCP","8021",None)

@@ -28,4 +28,4 @@ fix             1 all driver
 fix             2 all nvt temp 300.0 300.0 70.0
 fix             3 all shake 0.0001 20 0 b 1 a 1 
 
-driver          localhost 8021 MM
+driver          TCP localhost:8021 MM
