@@ -1,15 +1,19 @@
+#location of required codes
+LAMMPS_LOC=$(cat ../locations/lammps)
+QE_LOC=$(cat ../locations/qe)
+
 #remove old files
 ./clean.sh
 
 #launch QE
 cd qm
 HOSTNAME=| hostname
-/Users/tbarnes/Documents/mdi/q-e/bin/pw.x -ipi "$HOSTNAME":8021 -mdi_name QM -in water.in > water.out &
+${QE_LOC} -ipi "$HOSTNAME":8021 -mdi_name QM -in water.in > water.out &
 cd ../
 
 #launch LAMMPS
 cd mm
-/Users/tbarnes/Documents/mdi/lammps/src/lmp_mac -in water.in > input.out &
+${LAMMPS_LOC} -in water.in > input.out &
 cd ../
 
 #launch QMMM

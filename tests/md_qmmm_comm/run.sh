@@ -1,9 +1,12 @@
+#location of required codes
+LAMMPS_LOC=$(cat ../locations/lammps)
+
 #remove old files
 ./clean.sh
 
 #launch LAMMPS
 cd mm
-/Users/tbarnes/Documents/mdi/lammps/src/lmp_mac -in water.in > input.out &
+${LAMMPS_LOC} -in water.in > input.out &
 cd ../
 
 #launch the driver
