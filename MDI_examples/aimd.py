@@ -6,12 +6,12 @@ import mdi_python as mdi
 niterations = 10
 
 # initialize the socket
-sockfd = mdi.MDI_Init(8021)
+sockfd = mdi.MDI_Listen("TCP","8021",None)
 
 # connect to the production codes
 ncodes = 2
 for icode in range(ncodes):
-    comm = mdi.MDI_Accept_Connection(sockfd)
+    comm = mdi.MDI_Accept_Connection()
 
     # get the name of the code
     mdi.MDI_Send_Command("<NAME", comm)
