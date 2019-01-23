@@ -14,7 +14,7 @@ for icode in range(ncodes):
     comm = mdi.MDI_Accept_Connection()
 
     # get the name of the code
-    mdi.MDI_Send_Command("<NAME       ", comm)
+    mdi.MDI_Send_Command("<NAME", comm)
     name = mdi.MDI_Recv(mdi.MDI_NAME_LENGTH, mdi.MDI_CHAR, comm)
     print('Received connection: ' + str(name))
 
@@ -26,16 +26,16 @@ for icode in range(ncodes):
 
 
 # have the MD code initialize a new MD simulation
-mdi.MDI_Send_Command("MD_INIT     ", mm_comm)
+mdi.MDI_Send_Command("MD_INIT", mm_comm)
 
 for iiter in range(niterations):
 
     # get the MM energy
-    mdi.MDI_Send_Command("<ENERGY     ", mm_comm)
+    mdi.MDI_Send_Command("<ENERGY", mm_comm)
     mm_energy = mdi.MDI_Recv(1, mdi.MDI_DOUBLE, mm_comm)
 
     # do an MD timestep
-    mdi.MDI_Send_Command("TIMESTEP    ", mm_comm)
+    mdi.MDI_Send_Command("TIMESTEP", mm_comm)
 
     print("-------------------------------------")
     print("timestep: " + str(iiter))
