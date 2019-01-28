@@ -6,7 +6,8 @@ import mdi_python as mdi
 niterations = 10
 
 # initialize the socket
-sockfd = mdi.MDI_Listen("TCP","8021",None)
+#sockfd = mdi.MDI_Listen("TCP","8021",None)
+mdi.MDI_Init("-role DRIVER -name driver -method TCP -port 8021 -hostname localhost",None,None)
 
 # connect to the production codes
 ncodes = 2
