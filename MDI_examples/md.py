@@ -6,7 +6,7 @@ import mdi as mdi
 niterations = 10
 
 # initialize the socket
-mdi.MDI_Init("-role DRIVER -name driver -method TCP -port 8021 -hostname localhost",None)
+mdi.MDI_Init(sys.argv[2],None)
 
 # connect to the production codes
 ncodes = 1

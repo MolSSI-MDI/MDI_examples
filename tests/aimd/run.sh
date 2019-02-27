@@ -17,6 +17,6 @@ ${LAMMPS_LOC} -mdi "-role ENGINE -name MM -method TCP -port 8021 -hostname local
 cd ../
 
 #launch QMMM
-cd ../../MDI_examples/; python aimd.py &
+cd ../../MDI_examples/; python aimd.py -mdi "-role DRIVER -name driver -method TCP -port 8021" &
 
 wait
