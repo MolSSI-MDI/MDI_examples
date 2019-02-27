@@ -16,11 +16,12 @@ link_directories( ${MDI_LOCATION} )
 
 
 
+# Compile the MD code
 
 add_executable(md
            md.cpp)
 target_link_libraries(md mdi
-                                 ${MPI_LIBRARIES})
+                      ${MPI_LIBRARIES})
 set_target_properties(md
                       PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -31,6 +32,27 @@ endif()
 
 if(MPI_LINK_FLAGS)
   set_target_properties(md PROPERTIES
+    LINK_FLAGS "${MPI_LINK_FLAGS}")
+endif()
+
+
+
+# Compile the AIMD code
+
+add_executable(aimd
+           aimd.cpp)
+target_link_libraries(aimd mdi
+                      ${MPI_LIBRARIES})
+set_target_properties(aimd
+                      PROPERTIES LINKER_LANGUAGE CXX)
+
+if(MPI_COMPILE_FLAGS)
+  set_target_properties(aimd PROPERTIES
+    COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+endif()
+
+if(MPI_LINK_FLAGS)
+  set_target_properties(aimd PROPERTIES
     LINK_FLAGS "${MPI_LINK_FLAGS}")
 endif()
 
