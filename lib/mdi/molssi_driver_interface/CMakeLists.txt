@@ -1,6 +1,15 @@
+#check for MPI
+find_package(MPI)
+if( NOT MPI_FOUND )
+   if( mpi STREQUAL "ON" )
+      message( WARNING "Could not find MPI.  Compiling without MPI support." )
+   endif()
+   set(mpi "OFF")
+endif()
+
 #confirm that "language" is a valid value
-if( language AND (NOT language STREQUAL "C") AND (NOT language STREQUAL "Fortran") AND (NOT language STREQUAL "Python") )
-   message( FATAL_ERROR "Value of language not recognized. Accepted values are: C; Fortran; Python." )
+if( language AND (NOT language STREQUAL "CXX") AND (NOT language STREQUAL "Fortran") AND (NOT language STREQUAL "Python") )
+   message( FATAL_ERROR "Value of language not recognized. Accepted values are: CXX; Fortran; Python." )
 endif()
 
 #determine whether this is a SHARED or STATIC build
@@ -11,7 +20,13 @@ elseif ( (NOT libtype STREQUAL "STATIC") AND (NOT libtype STREQUAL "SHARED") )
 endif()
 
 #construct the list of source files
-list(APPEND sources "mdi.c")
+list(APPEND sources "mdi.cpp")
+list(APPEND sources "communicator.h")
+list(APPEND sources "communicator.cpp")
+list(APPEND sources "mdi_manager.h")
+list(APPEND sources "mdi_manager.cpp")
+list(APPEND sources "method.h")
+list(APPEND sources "method.cpp")
 if( mpi STREQUAL "OFF" )
    list(APPEND sources "${CMAKE_CURRENT_SOURCE_DIR}/STUBS_MPI/mpi.h")
 endif()
@@ -24,16 +39,11 @@ add_library(mdi ${libtype}
 
 #include and link to MPI
 if( mpi STREQUAL "ON" )
-   find_package(MPI)
-
-   if( NOT MPI_FOUND )
-      message( FATAL_ERROR "Could not find MPI.  Recompile with -Dmpi=OFF to compile without MPI support." )
-   endif()
 
    #include MPI
-   target_include_directories(mdi PRIVATE ${MPI_C_INCLUDE_PATH})
-   target_compile_options(mdi PRIVATE ${MPI_C_COMPILE_FLAGS})
-   target_link_libraries(mdi ${MPI_C_LIBRARIES} ${MPI_C_LINK_FLAGS})
+   target_include_directories(mdi PRIVATE ${MPI_CXX_INCLUDE_PATH})
+   target_compile_options(mdi PRIVATE ${MPI_CXX_COMPILE_FLAGS})
+   target_link_libraries(mdi ${MPI_CXX_LIBRARIES} ${MPI_CXX_LINK_FLAGS})
 
 elseif( mpi STREQUAL "OFF" )
 
@@ -53,10 +63,10 @@ if( (NOT language) OR (language STREQUAL "Python") )
       endif()
    endif()
 
-   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mdi_python.py ${CMAKE_CURRENT_BINARY_DIR}/mdi_python.py COPYONLY)
+   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mdi.py ${CMAKE_CURRENT_BINARY_DIR}/mdi.py COPYONLY)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py COPYONLY)
 
-   # Write the name of the mdi library, for use by mdi_python.py
+   # Write the name of the mdi library, for use by mdi.py
    file(GENERATE
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mdi_name
       CONTENT $<TARGET_FILE_NAME:mdi>
