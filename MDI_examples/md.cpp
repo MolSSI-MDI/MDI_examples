@@ -27,23 +27,12 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  // Get the Angstrom-Bohr conversion factor
-  double conversion_factor = MDI_Conversion_Factor("Angstrom","Bohr");
-  printf("Conversion factor: %f\n",conversion_factor);
-
   // Initialize the MDI driver
   world_comm = MPI_COMM_WORLD;
   int ret = MDI_Init(argv[iarg+1], &world_comm);
 
   // Accept a communicator from the production code
   int mm_comm = MDI_Accept_Communicator();
-
-  // Note: For reasons I don't fully understand, the pointer returned by MPI
-  // doesn't seem to persist throughout the test.
-  // As a workaround, use mpi_ptr as the argument and then assign mpi_rank
-  // to its value.
-  MPI_Comm_rank(world_comm, &mpi_ptr);
-  mpi_rank = mpi_ptr;
 
   start = clock();
 
@@ -61,9 +50,7 @@ int main(int argc, char **argv) {
   end = clock();
   cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-  if ( mpi_rank == 0 ) {
-    printf("Total time: %f\n",cpu_time);
-  }
+  cout << "Total time: " << cpu_time << endl;
 
   MDI_Send_Command("EXIT", mm_comm);
 
