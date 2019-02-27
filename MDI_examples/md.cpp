@@ -1,26 +1,21 @@
+#include <iostream>
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
 #include <mpi.h>
 #include "../lib/mdi_build/molssi_driver_interface/mdi.h"
 
-void mdi_ping_pong(int comm) {
-  char message[MDI_NAME_LENGTH];
-
-  MDI_Send_Command("<NAME",comm);
-  MDI_Recv(message, MDI_NAME_LENGTH, MDI_CHAR, comm);
-
-  //printf("NAME: %s\n",message);
-}
+using namespace std;
 
 int main(int argc, char **argv) {
   clock_t start, end;
   double cpu_time;
-  int niter = 10000;
+  int niterations = 100;
   int mpi_ptr;
-  int world_rank;
+  int mpi_rank;
   MPI_Comm world_comm;
   int i;
+  double energy;
 
   // Initialize the MPI environment
   MPI_Init(&argc, &argv);
@@ -41,37 +36,36 @@ int main(int argc, char **argv) {
   int ret = MDI_Init(argv[iarg+1], &world_comm);
 
   // Accept a communicator from the production code
-  int comm = MDI_Accept_Communicator();
+  int mm_comm = MDI_Accept_Communicator();
 
   // Note: For reasons I don't fully understand, the pointer returned by MPI
   // doesn't seem to persist throughout the test.
-  // As a workaround, use mpi_ptr as the argument and then assign world_rank
+  // As a workaround, use mpi_ptr as the argument and then assign mpi_rank
   // to its value.
   MPI_Comm_rank(world_comm, &mpi_ptr);
-  world_rank = mpi_ptr;
+  mpi_rank = mpi_ptr;
 
   start = clock();
 
-  if ( world_rank == 0 ) {
-    for (i=0; i<niter; i++) {
-      mdi_ping_pong(comm);
-      if (i%1000 == 0) {
-	printf("Iteration: %i\n",i);
-      }
-    }
+  MDI_Send_Command("MD_INIT", mm_comm);
+
+  for (int iiter = 0; iiter < niterations; iiter++) {
+    MDI_Send_Command("<ENERGY", mm_comm);
+    MDI_Recv(&energy, 1, MDI_DOUBLE, mm_comm);
+
+    MDI_Send_Command("TIMESTEP", mm_comm);
+
+    cout << "timestep: " << iiter << " " << energy << endl;
   }
 
   end = clock();
   cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-  if ( world_rank == 0 ) {
-    printf("Ping-pong time: %f\n",cpu_time);
-    printf("   us: %f\n",1000000.0*cpu_time/((double) (2*niter)));
+  if ( mpi_rank == 0 ) {
+    printf("Total time: %f\n",cpu_time);
   }
 
-  if ( world_rank == 0 ) {
-    MDI_Send_Command("EXIT",comm);
-  }
+  MDI_Send_Command("EXIT", mm_comm);
 
   MPI_Barrier(world_comm);
 
