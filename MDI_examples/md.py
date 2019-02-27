@@ -1,18 +1,17 @@
 import sys
 sys.path.insert(0, '../lib/mdi_build/molssi_driver_interface')
 
-import mdi_python as mdi
+import mdi as mdi
 
 niterations = 10
 
 # initialize the socket
-#sockfd = mdi.MDI_Listen("TCP","8021",None)
-mdi.MDI_Init("-role DRIVER -name driver -method TCP -port 8021 -hostname localhost",None,None)
+mdi.MDI_Init("-role DRIVER -name driver -method TCP -port 8021 -hostname localhost",None)
 
 # connect to the production codes
 ncodes = 1
 for icode in range(ncodes):
-    comm = mdi.MDI_Accept_Connection()
+    comm = mdi.MDI_Accept_Communicator()
 
     # get the name of the code
     mdi.MDI_Send_Command("<NAME", comm)
