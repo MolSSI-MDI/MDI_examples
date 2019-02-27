@@ -6,7 +6,7 @@ LAMMPS_LOC=$(cat ../locations/lammps)
 
 #launch LAMMPS
 cd mm
-${LAMMPS_LOC} -in water.in > input.out &
+${LAMMPS_LOC} -mdi "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost" -in water.in > input.out &
 cd ../
 
 #launch driver
