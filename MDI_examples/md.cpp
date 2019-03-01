@@ -3,7 +3,9 @@
 #include <time.h>
 #include <string.h>
 #include <mpi.h>
+extern "C" {
 #include "../lib/mdi_build/molssi_driver_interface/mdi.h"
+}
 
 using namespace std;
 

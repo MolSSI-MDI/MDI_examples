@@ -3,14 +3,16 @@
 #include <time.h>
 #include <string.h>
 #include <mpi.h>
+extern "C" {
 #include "../lib/mdi_build/molssi_driver_interface/mdi.h"
+}
 
 using namespace std;
 
 int main(int argc, char **argv) {
   clock_t start, end;
   double cpu_time;
-  int niterations = 100;
+  int niterations = 3;
   MPI_Comm world_comm;
   int i;
 
@@ -33,7 +35,34 @@ int main(int argc, char **argv) {
   int ret = MDI_Init(argv[iarg+1], &world_comm);
 
   // Accept a communicator from the production code
-  int mm_comm = MDI_Accept_Communicator();
+  //int mm_comm = MDI_Accept_Communicator();
+  int mm_comm;
+  int qm_comm;
+
+  int ncodes = 2;
+  for (int icode=0; icode < ncodes; icode++) {
+    int comm = MDI_Accept_Communicator();
+
+    // Determine which code this is
+    char* code_name = new char[MDI_NAME_LENGTH];
+    MDI_Send_Command("<NAME", comm);
+    MDI_Recv(code_name, MDI_NAME_LENGTH, MDI_CHAR, comm);
+
+    cout << "Code name: " << code_name << endl;
+
+    if ( strcmp(code_name, "MM") == 0 ) {
+      mm_comm = comm;
+    }
+    else if ( strcmp(code_name, "QM") == 0 ) {
+      qm_comm = comm;
+    }
+    else {
+      perror("Unrecognized code name");
+      return -1;
+    }
+
+    delete[] code_name;
+  }
 
   start = clock();
 
@@ -56,23 +85,23 @@ int main(int argc, char **argv) {
     MDI_Recv(&coords, 3*natoms, MDI_DOUBLE, mm_comm);
 
     // Send the coordinates to the QM code
-    MDI_Send_Command(">COORDS", mm_comm);
-    MDI_Send(&coords, 3*natoms, MDI_DOUBLE, mm_comm);
+    MDI_Send_Command(">COORDS", qm_comm);
+    MDI_Send(&coords, 3*natoms, MDI_DOUBLE, qm_comm);
 
     // Have the QM code perform an SCF calculation
-    //MDI_Send_Command("SCF", mm_comm);
+    MDI_Send_Command("SCF", qm_comm);
 
     // Get the QM energy
-    MDI_Send_Command("<ENERGY", mm_comm);
-    MDI_Recv(&qm_energy, 1, MDI_DOUBLE, mm_comm);
+    MDI_Send_Command("<ENERGY", qm_comm);
+    MDI_Recv(&qm_energy, 1, MDI_DOUBLE, qm_comm);
 
     // Get the MM energy
     MDI_Send_Command("<ENERGY", mm_comm);
     MDI_Recv(&mm_energy, 1, MDI_DOUBLE, mm_comm);
 
     // Receive the forces from the QM code
-    MDI_Send_Command("<FORCES", mm_comm);
-    MDI_Recv(&forces, 3*natoms, MDI_DOUBLE, mm_comm);
+    MDI_Send_Command("<FORCES", qm_comm);
+    MDI_Recv(&forces, 3*natoms, MDI_DOUBLE, qm_comm);
 
     // Send the forces to the MM code
     MDI_Send_Command(">FORCES", mm_comm);
@@ -90,6 +119,7 @@ int main(int argc, char **argv) {
   cout << "Total time: " << cpu_time << endl;
 
   MDI_Send_Command("EXIT", mm_comm);
+  MDI_Send_Command("EXIT", qm_comm);
 
   MPI_Barrier(world_comm);
 
