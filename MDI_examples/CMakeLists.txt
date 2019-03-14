@@ -11,7 +11,7 @@ else()
    include_directories(${CMAKE_SOURCE_DIR}/STUBS_MPI/)
 endif()
 
-set( MDI_LOCATION ${CMAKE_SOURCE_DIR}/../lib/mdi_build/molssi_driver_interface/ )
+set( MDI_LOCATION ${CMAKE_SOURCE_DIR}/../lib/mdi_build/MDI_Library/ )
 link_directories( ${MDI_LOCATION} )
 
 

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <mpi.h>
 extern "C" {
-#include "../lib/mdi_build/molssi_driver_interface/mdi.h"
+#include "../lib/mdi_build/MDI_Library/mdi.h"
 }
 
 using namespace std;
